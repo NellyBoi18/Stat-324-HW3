@@ -1,0 +1,290 @@
+---
+title: "Stat 324 Homework #3"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*If an exercise asks you to use R, include a copy of the code and output. Please edit your code and output to be only the relevant portions.
+
+*If a problem does not specify how to compute the answer, you many use any appropriate method. I may ask you to use R or use manually calculations on your exams, so practice accordingly.
+
+*You must include an explanation and/or intermediate calculations for an exercise to be complete.
+
+\vspace{.5cm}
+
+**Exercise 1:** A chemical supply company ships a certain solvent in 10-gallon drums. Let X represent the number of drums ordered by a randomly chosen customer. Assume X has the following probability mass function (pmf). The mean and variance of X is : $\mu_X=2.2$ and $\sigma^2_X=1.76=1.32665^2$:
+
+
+| X | P(X=x) |
+|:-:|:-:|
+| 1 | 0.4|
+| 2 | 0.3|
+| 3 | 0.1 |
+|4  | 0.1 |
+|5 | 0.1 |
+
+
+> a. Calculate $P(X \le 2)$ and describe what it means in the context of the problem. 
+
+**Solution:**
+$P(X \le 2)$ = P(X=1) + P(X=2)
+= 0.4 + 0.3
+= 0.7
+
+In the context of the problem $P(X \le 2)$ = 0.7 means that if a random sample was taken, there is a 70% chance that the customer order one or two 10-gallon drums
+
+> b. Let Y be the number of gallons ordered, so $Y=10X$. Find the probability mass function of Y.
+
+| y | P(Y=y) |
+|:-:|:-:|
+| 10 | 0.4 |
+| 20 | 0.3 |
+| 30 | 0.1 |
+| 40 | 0.1 |
+| 50 | 0.1 |
+
+> c. Calculate $\mu_Y$. Interpret this value.
+
+**Solution:**
+$\mu_Y$ = E(Y) = E(10X) = 10E(X)  
+E(X) = 2.2  
+$10 * 2.2$ = 22  
+$\mu_Y$ = 22  
+This value is the mean number of gallons ordered
+
+> d. Calculate $\sigma_Y$. Interpret this value.
+
+**Solution:**
+$\sigma_Y$ = $\sqrt Variance(Y)$ = $\sigma^2_y$
+Variance(Y) = Variance(10X) = $10^2 * Variance(X)$  
+Variance(Y) = 100 * 1.76 = 176
+```{r}
+sqrt(176)
+```
+This value is the standard deviation of the number of gallons ordered
+
+\vspace{.5cm}
+
+
+**Exercise 2** A customer receives a very large shipment of items. The customer assumes 15\% of the items in the shipment are defective. You can assume that the defectiveness of items is independent within the shipment and use a 0.15 probability of defectiveness for each item. 
+
+Someone on the quality assurance team samples 4 items. Let X be the random variable for the number of defective items in the sample.  
+
+> a. Determine the probability distribution of X (write out the pmf) using probability theory.
+
+**Solution:**  
+```{r}
+dbinom(0, 4, 0.15)
+dbinom(1, 4, 0.15)
+dbinom(2, 4, 0.15)
+dbinom(3, 4, 0.15)
+dbinom(4, 4, 0.15)
+```
+
+
+| x | P(X=x) |
+|:-:|:-:|
+| 0 | 0.5220062 |
+| 1 | 0.368475  |
+| 2 | 0.0975375 |
+| 3 | 0.011475  |
+| 4 | 0.00050625 |
+
+> b. Compute P(X>0). What does this value mean in the context of the scenerio?
+
+**Solution:**
+P(X>0) = 1 - $P(X \le 0)$  
+= 1 - 0.5220062
+```{r}
+1 - 0.5220062
+```
+This value means that there is a 47.8% chance that there will be at least one defect in a sample size of 4
+
+> c. What is the expected value for X, $\mu_X$? What does that value mean in the context of the scenerio?
+
+**Solution:**
+E(X) = n * p = 4 * 0.15 = 0.6  
+This value means that on average, the number of defective items in a sample size of 4 is 0.6
+
+
+> d. What is the standard deviation for X, $\sigma_X$? 
+
+**Solution:**
+SD(X) = $\sqrt (n * p * (1-p))$
+```{r}
+sqrt(4 * 0.15 * (1 - 0.15))
+```
+
+
+
+> e. Update the following simulation to check your answers for part 2a. (You'll need to also set eval=TRUE for the code to run when you knit.) Some questions to consider: Why did I define IsDefective as I did? What values wouuld be helpful stored into the CountDefective vector? What does the histogram show? 
+
+**Solution:**
+```{r, eval=TRUE}
+IsDefective=c(rep(1,15), rep(0,85))
+manytimes=100000. #may want to start with manytimes being smaller
+CountDefective=rep(0,manytimes)
+set.seed(1)
+for (i in 1:manytimes){
+  samp=sample(x=IsDefective, size=4, replace=FALSE)
+  CountDefective[i]=sum(samp)
+}
+
+hist(CountDefective, labels=TRUE,
+     ylim=c(0,.7*manytimes), breaks=seq(-0.5, 4.5, 1))
+
+(probX0 = sum(CountDefective == 0) / manytimes)
+(probX1 = sum(CountDefective == 1) / manytimes)
+(probX2 = sum(CountDefective == 2) / manytimes)
+(probX3 = sum(CountDefective == 3) / manytimes)
+(probX4 = sum(CountDefective == 4) / manytimes)
+
+```
+
+IsDefective is defined as it did because 15% was deemed to be defective so by having a size of 100, it was easy to represent 15% by having 15 1's to denote defective.  
+The CountDefective vector stores the number of defective units out of a sample of 4.  
+The histogram shows, out of manytimes, how many samples of 4 had 0, 1, 2, 3, and 4 defects in it.
+
+> f. Suppose the quality assurance employee is now going to look at 20 items from the shipment. They still believe it is reasonable to use a Binomial model (n=20, $\pi=0.15$) to describe the number of items in those 20 that will have a defect. 
+
+>> fi. What the the probability that exactly 5 of those 20 items have a defect? 
+
+**Solution:**
+```{r}
+dbinom(5, 20, 0.15)
+```
+
+>> fii. What the the probability that 5 or more of those 20 items have a defect?
+
+**Solution:**
+$P(X \ge 5) = 1 - (P(X = 4) + P(X = 3) + P(X = 2) + P(X = 1) + P(X = 0))$
+```{r}
+PX4 = dbinom(4, 20, 0.15)
+PX3 = dbinom(3, 20, 0.15)
+PX2 = dbinom(2, 20, 0.15)
+PX1 = dbinom(1, 20, 0.15)
+PX0 = dbinom(0, 20, 0.15)
+1 - (PX4 + PX3 + PX2 + PX1 + PX0)
+```
+
+
+>> fiii. Which histogram given below correctly shows the pdf for the binomial model described in f?
+
+```{r, echo=FALSE}
+par(mfrow=c(2,2), mar=c(4,4,2,1))
+barplot(names=0:5,dbinom(0:5, 15, prob=0.85), 
+     xlab="", ylab="Probability", main="Graph A", space=0)
+barplot(names=0:20, dbinom(0:20, 20, prob=0.85), 
+     xlab="", ylab="Probability", main="Graph B", space=0)
+barplot(names=0:20, dbinom(0:20, 20, prob=0.15), 
+     xlab="", ylab="Probability", main="Graph C", space=0)
+barplot(names=0:5, dbinom(0:5, 15, prob=0.15), 
+     xlab="", ylab="Probability", main="Graph D", space=0)
+par(mfrow=c(1,1), mar=c(5.1, 4.1, 4.1, 2.1))
+```
+
+**Solution:**
+Graph C
+
+\vspace{.5 cm}
+
+
+**Exercise 3** For each of the following questions, say whether the random variable is reasonably approximated by a binomial random variable or not, and explain your answer. Comment on the reasonableness of each of things that must be true for a variable to be a binomial random variable (ex: identify $n:$ the number of Bernoulli trials,  $\pi$ the probability of success, etc).
+
+> a. A fair die is rolled until a 1 appears, and X denotes the number of rolls.
+
+**Solution:**
+This can not be approximated by a binomial random variable. Rolling until a 1 appears means the probability is going to change for each trial. This also means that the number of rolls cannot be fixed, which is a requirement.
+
+
+> b. Twenty of the different Badger basketball players each attempt 1 free throw and X is the total number of successful attempts.
+
+**Solution:**
+This can not be approximated by a binomial random variable because we cannot calculate the probability of success.
+
+
+> c. A die is rolled 40 times. Let X be the face that lands up.
+
+**Solution:**
+This can not be approximated by a binomial random variable because there are more than two possible outcomes for each trial. Assuming the die is six sided, there are six possible outcomes for each trial, meaning that there is no success or failure. 
+
+
+>d. In a bag of 10 batteries, I know 2 are old. Let X be the number of old batteries I choose when taking a sample of 4 to put into my calculator.
+
+**Solution:**
+This can not be approximated by a binomial random variable because we don't know the probability of success. It is taking a sample without replacement so the probability is constantly changing.
+
+
+>e. It is reported that 20\% of Madison homeowners have installed a home security system. Let X be the number of homes without home security systems installed in a random sample of 100 houses in the Madison city limits.
+
+**Solution:**
+This can be reasonably approximated by a binomial random variable because the number of trials is fixed (100), they are independent from each other, the probability is constant (20/100), and there are only two outcomes (installed/not installed).
+
+
+\vspace{.5cm}
+
+
+**Exercise 4:** The bonding strength $S$ of a drop of plastic glue from a particular manufacturer is thought to be well approximated by a normal distribution with mean 98 lbs and standard deviation 7.5 lbs. $S~\sim N(98, 7.5^2)$. Compute the following values using a normal model assumption. 
+
+> a. What proportion of drops of plastic glue will have a bonding strength between 95 and 104 lbs according to this model?
+
+**Solution:**
+$P(95 \le S \le 104) = P(\frac{95 - 98}{7.5} \le Z \le \frac{104 - 98}{7.5})$ where Z = $\frac{X - \mu}{\sigma}$ 
+= $P(Z \le 0.8) - P(Z \le -0.4)$  
+```{r}
+PZ8 = pnorm(0.8, 0, 1)
+PZ4 = pnorm(-0.4, 0, 1)
+PZ8 - PZ4
+```
+
+
+> b. A single drop of that glue had a bonding strength that is 0.5 standard deviations above the mean. What proportion of glue drops have a bonding strength that is higher ?
+
+**Solution:**
+$P(Z \gt 0.5) = 1 - P(Z \le 0.5)$
+```{r}
+1 - pnorm(0.5, 0, 1)
+```
+
+
+> c. What bonding strength did a drop of glue have that is at the 90th percentile?
+
+**Solution:**
+$Z = \frac{X - \mu}{\sigma}$  
+$\mu = 98$  
+$\sigma = 7.5$
+```{r}
+Z = qnorm(0.9, 0, 1)
+Z * 7.5 + 98
+```
+
+
+> d. What is the IQR of bonding strength for drops of glue from this manufacturer?
+
+**Solution:**
+```{r}
+Z = qnorm(0.25)
+Q1 = Z * 7.5 + 98
+Z = qnorm(0.75)
+Q3 = Z * 7.5 + 98
+Q3 - Q1
+```
+
+
+> e. Drops of a similar plastic glue from another manufacturer (manufacturer B) is claimed to have bonding strength well approximated by a normal distribution with mean 43 kg and standard deviation of 3.5 kg $W_{B.kg}~\sim N(43, 3.5^2)$. What is the probability that a drop of manufacturer B's glue will have strength above the 90th percentile strength of manufacturer A's glue? You can use the conversion: 1 kg $\approx$ 2.20462 lbs. 
+
+**Solution:**
+```{r}
+Z = qnorm(0.9, 0, 1)
+manA90 = Z * 7.5 + 98
+manA90inKg = manA90 / 2.20462
+manBAboveManA90lbs = (manA90inKg - 43) / 3.5
+1 - pnorm(manBAboveManA90lbs, 0, 1)
+
+```
